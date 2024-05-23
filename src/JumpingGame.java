@@ -24,7 +24,7 @@ public class JumpingGame extends GameEngine{
 
     public void init() {
         player = new Player(0, 400, 100, 100);
-        sheet = loadImage("Images/newSprite.png");
+        sheet = loadImage("Images/playerSprite.png");
         totalFrames = rows * cols;
         frames = new Image[totalFrames];
         //sprites = new Image[rows][cols];
