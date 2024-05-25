@@ -1,5 +1,7 @@
 import java.awt.*;
 import java.awt.event.KeyEvent;
+import java.util.ArrayList;
+import java.util.Random;
 
 public class JumpingGame extends GameEngine{
     Player player;
@@ -12,6 +14,10 @@ public class JumpingGame extends GameEngine{
     double t;
     double acceleration = -2; //gravity
     int yFloor = 400; //the "floor" that the sprite runs on
+    ArrayList<Obstacle> obstacles;
+    ArrayList<Coin> coins;
+    Random rand = new Random();
+    int score = 0;
 
     public static void main(String[] args){
         createGame(new JumpingGame());
@@ -33,6 +39,8 @@ public class JumpingGame extends GameEngine{
             }
         }
         t = 0;
+        obstacles = new ArrayList<>();
+        coins = new ArrayList<>();
     }
     public int getFrame(double d)
     {
@@ -44,6 +52,42 @@ public class JumpingGame extends GameEngine{
         t+=dt;
         player.updatePosition(acceleration);
         checkRoof();
+        // Spawn obstacles
+        if (rand.nextInt(200) < 3) { // adjust the frequency as needed
+            obstacles.add(new Obstacle(800, 400, 50, 50, 200));
+        }
+
+        // Spawn coins
+        if (rand.nextInt(100) < 2) { // adjust the frequency as needed
+            coins.add(new Coin(800, 350 + rand.nextInt(100), 10, 200));
+        }
+
+        // Update obstacles
+        for (int i = obstacles.size() - 1; i >= 0; i--) {
+            Obstacle obstacle = obstacles.get(i);
+            obstacle.update(dt);
+            if (obstacle.xPos + obstacle.width < 0) {
+                obstacles.remove(i);
+            } else if (obstacle.getBounds().intersects(new Rectangle((int) player.hitboxX, (int) player.hitboxY, player.hitboxWidth, player.hitboxHeight))) {
+                // Game over
+                System.out.println("Game Over! Score: " + score);
+                break;
+            }
+        }
+
+        // Update coins
+        for (int i = coins.size() - 1; i >= 0; i--) {
+            Coin coin = coins.get(i);
+            coin.update(dt);
+            if (coin.xPos + coin.radius * 2 < 0) {
+                coins.remove(i);
+            } else if (coin.getBounds().intersects(new Rectangle((int) player.hitboxX, (int) player.hitboxY, player.hitboxWidth, player.hitboxHeight))) {
+                // Collect coin
+                coins.remove(i);
+                score++;
+                System.out.println("Score: " + score);
+            }
+        }
     }
 
     public void checkRoof(){
@@ -72,6 +116,18 @@ public class JumpingGame extends GameEngine{
 //        //uncomment this to show the hitbox for testing purposes
 //        changeColor(yellow);
 //        drawRectangle(player.hitboxX, player.hitboxY, player.hitboxWidth, player.hitboxHeight);
+        // Draw obstacles
+        changeColor(Color.red);
+        for (Obstacle obstacle : obstacles) {
+            drawRectangle(obstacle.xPos, obstacle.yPos, obstacle.width, obstacle.height);
+        }
+
+        // Draw coins
+        changeColor(Color.yellow);
+        for (Coin coin : coins) {
+            drawCircle(coin.xPos, coin.yPos, coin.radius);
+        }
+
     }
 
     private void DrawWith1DArray(int f)
