@@ -5,7 +5,7 @@ import java.util.Random;
 
 public class JumpingGame extends GameEngine{
     Player player;
-
+    ScreenScroller screenScroller = new ScreenScroller();
     Image sheet;
     int totalFrames;
     int rows = 3;
