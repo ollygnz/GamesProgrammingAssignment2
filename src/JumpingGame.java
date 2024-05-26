@@ -17,6 +17,9 @@ public class JumpingGame extends GameEngine{
     ArrayList<Obstacle> obstacles;
     ArrayList<Coin> coins;
     Random rand = new Random();
+    AudioClip coinSound;
+    AudioClip bgMusic;
+    AudioClip loseSound;
     int score = 0;
     enum GameState {Menu, Game, GameOver};
     GameState gameState = GameState.Game; //when going in and adding a start menu you'll need to change this
@@ -40,9 +43,13 @@ public class JumpingGame extends GameEngine{
                 frames[iy * cols + ix] = subImage(sheet, ix * 170, iy * 170, 170, 170);
             }
         }
+        coinSound = loadAudio("Audio/coin.wav");
+        loseSound = loadAudio("Audio/lose.wav");
+        bgMusic = loadAudio("Audio/bgm.wav");
         t = 0;
         obstacles = new ArrayList<>();
         coins = new ArrayList<>();
+        startAudioLoop(bgMusic);
     }
     public int getFrame(double d)
     {
@@ -73,7 +80,9 @@ public class JumpingGame extends GameEngine{
                     obstacles.remove(i);
                 } else if (obstacle.getBounds().intersects(new Rectangle((int) player.hitboxX, (int) player.hitboxY, player.hitboxWidth, player.hitboxHeight))) {
                     // Game over
+                    playAudio(loseSound);
                     System.out.println("Game Over! Score: " + score);
+                    stopAudioLoop(bgMusic);
                     gameState = GameState.GameOver;
                     break;
                 }
@@ -87,6 +96,7 @@ public class JumpingGame extends GameEngine{
                     coins.remove(i);
                 } else if (coin.getBounds().intersects(new Rectangle((int) player.hitboxX, (int) player.hitboxY, player.hitboxWidth, player.hitboxHeight))) {
                     // Collect coin
+                    playAudio(coinSound);
                     coins.remove(i);
                     score++;
                     System.out.println("Score: " + score);
