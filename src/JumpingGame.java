@@ -18,6 +18,8 @@ public class JumpingGame extends GameEngine{
     ArrayList<Coin> coins;
     Random rand = new Random();
     int score = 0;
+    enum GameState {Menu, Game, GameOver};
+    GameState gameState = GameState.Game; //when going in and adding a start menu you'll need to change this
 
     public static void main(String[] args){
         createGame(new JumpingGame());
@@ -49,45 +51,49 @@ public class JumpingGame extends GameEngine{
     }
 
     public void update(double dt) {
-        t+=dt;
-        player.updatePosition(acceleration);
-        checkRoof();
-        // Spawn obstacles
-        if (rand.nextInt(200) < 3) { // adjust the frequency as needed
-            obstacles.add(new Obstacle(800, 400, 50, 50, 200));
-        }
+        if(gameState == GameState.Game){
+            t+=dt;
+            player.updatePosition(acceleration);
+            checkRoof();
+            // Spawn obstacles
+            if (rand.nextInt(200) < 3) { // adjust the frequency as needed
+                obstacles.add(new Obstacle(800, 400, 50, 50, 200));
+            }
 
-        // Spawn coins
-        if (rand.nextInt(100) < 2) { // adjust the frequency as needed
-            coins.add(new Coin(800, 350 + rand.nextInt(100), 10, 200));
-        }
+            // Spawn coins
+            if (rand.nextInt(100) < 2) { // adjust the frequency as needed
+                coins.add(new Coin(800, 350 + rand.nextInt(100), 10, 200));
+            }
 
-        // Update obstacles
-        for (int i = obstacles.size() - 1; i >= 0; i--) {
-            Obstacle obstacle = obstacles.get(i);
-            obstacle.update(dt);
-            if (obstacle.xPos + obstacle.width < 0) {
-                obstacles.remove(i);
-            } else if (obstacle.getBounds().intersects(new Rectangle((int) player.hitboxX, (int) player.hitboxY, player.hitboxWidth, player.hitboxHeight))) {
-                // Game over
-                System.out.println("Game Over! Score: " + score);
-                break;
+            // Update obstacles
+            for (int i = obstacles.size() - 1; i >= 0; i--) {
+                Obstacle obstacle = obstacles.get(i);
+                obstacle.update(dt);
+                if (obstacle.xPos + obstacle.width < 0) {
+                    obstacles.remove(i);
+                } else if (obstacle.getBounds().intersects(new Rectangle((int) player.hitboxX, (int) player.hitboxY, player.hitboxWidth, player.hitboxHeight))) {
+                    // Game over
+                    System.out.println("Game Over! Score: " + score);
+                    gameState = GameState.GameOver;
+                    break;
+                }
+            }
+
+            // Update coins
+            for (int i = coins.size() - 1; i >= 0; i--) {
+                Coin coin = coins.get(i);
+                coin.update(dt);
+                if (coin.xPos + coin.radius * 2 < 0) {
+                    coins.remove(i);
+                } else if (coin.getBounds().intersects(new Rectangle((int) player.hitboxX, (int) player.hitboxY, player.hitboxWidth, player.hitboxHeight))) {
+                    // Collect coin
+                    coins.remove(i);
+                    score++;
+                    System.out.println("Score: " + score);
+                }
             }
         }
 
-        // Update coins
-        for (int i = coins.size() - 1; i >= 0; i--) {
-            Coin coin = coins.get(i);
-            coin.update(dt);
-            if (coin.xPos + coin.radius * 2 < 0) {
-                coins.remove(i);
-            } else if (coin.getBounds().intersects(new Rectangle((int) player.hitboxX, (int) player.hitboxY, player.hitboxWidth, player.hitboxHeight))) {
-                // Collect coin
-                coins.remove(i);
-                score++;
-                System.out.println("Score: " + score);
-            }
-        }
     }
 
     public void checkRoof(){
@@ -104,30 +110,39 @@ public class JumpingGame extends GameEngine{
         }
     }
 
+    public void gameOverScreen(){
+        changeColor(white);
+        drawText(85, 150, "GAME OVER!", "Arial", 50);
+        String scoreString = "Final score: " + score;
+        drawText(150, 200, scoreString, "Arial", 30);
+    }
     public void paintComponent() {
         mFrame.setTitle("Jumping Game");
         // Clear the background to black
         changeBackgroundColor(black);
         clearBackground(width(), height());
 
-        int f = getFrame(1);
-        DrawWith1DArray(f);
+        if(gameState == GameState.Game) {
+            int f = getFrame(1);
+            DrawWith1DArray(f);
 
 //        //uncomment this to show the hitbox for testing purposes
 //        changeColor(yellow);
 //        drawRectangle(player.hitboxX, player.hitboxY, player.hitboxWidth, player.hitboxHeight);
-        // Draw obstacles
-        changeColor(Color.red);
-        for (Obstacle obstacle : obstacles) {
-            drawRectangle(obstacle.xPos, obstacle.yPos, obstacle.width, obstacle.height);
-        }
+            // Draw obstacles
+            changeColor(Color.red);
+            for (Obstacle obstacle : obstacles) {
+                drawRectangle(obstacle.xPos, obstacle.yPos, obstacle.width, obstacle.height);
+            }
 
-        // Draw coins
-        changeColor(Color.yellow);
-        for (Coin coin : coins) {
-            drawCircle(coin.xPos, coin.yPos, coin.radius);
+            // Draw coins
+            changeColor(Color.yellow);
+            for (Coin coin : coins) {
+                drawCircle(coin.xPos, coin.yPos, coin.radius);
+            }
+        } else if(gameState == GameState.GameOver){
+            gameOverScreen();
         }
-
     }
 
     private void DrawWith1DArray(int f)
