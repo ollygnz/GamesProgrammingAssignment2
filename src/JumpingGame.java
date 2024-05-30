@@ -64,12 +64,17 @@ public class JumpingGame extends GameEngine{
             checkRoof();
             // Spawn obstacles
             if (rand.nextInt(200) < 3) { // adjust the frequency as needed
-                obstacles.add(new Obstacle(800, 400, 50, 50, 200));
+                obstacles.add(new Obstacle(800, 100 + rand.nextInt(300), 50, 50, 200));
             }
 
             // Spawn coins
             if (rand.nextInt(100) < 2) { // adjust the frequency as needed
-                coins.add(new Coin(800, 350 + rand.nextInt(100), 10, 200));
+                int newCoinY = 40 + rand.nextInt(440);
+                for(Obstacle obstacle : obstacles){
+                    if(newCoinY <= obstacle.yPos - 50 || newCoinY >= obstacle.yPos + 150){
+                        coins.add(new Coin(800, newCoinY, 10, 200));
+                    }
+                }
             }
 
             // Update obstacles
