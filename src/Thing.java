@@ -1,15 +1,19 @@
 import java.util.Random;
+import java.awt.Rectangle;
 public class Thing {
-    int x,y,w,h,s;
+    int x,y,w,h,s,r;
+    char Type;
 
-    public Thing(){
+    public Thing(char T,int W, int H){
         Random random;
         random = new Random();
         x = random.nextInt(400,500);
-        y = random.nextInt(0,400);
-        w = random.nextInt(10,50);
-        h = random.nextInt(10,50);
-        s = random.nextInt(1,10);
+        y = random.nextInt(0,450);
+        w = W;
+        h = H;
+        s = random.nextInt(10,25);
+        r = random.nextInt(10,25);
+        Type = T;
     }
 
     public int getH() {
@@ -50,5 +54,13 @@ public class Thing {
 
     public void setY(int y) {
         this.y = y;
+    }
+
+    public char getType() {
+        return Type;
+    }
+
+    public Rectangle getBounds() {
+        return new Rectangle(x, y, w, h);
     }
 }
