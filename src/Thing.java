@@ -4,11 +4,11 @@ public class Thing {
     int x,y,w,h,s,r;
     char Type;
 
-    public Thing(char T,int W, int H){
+    public Thing(char T,int W, int H, int X, int Y){
         Random random;
         random = new Random();
-        x = random.nextInt(400,500);
-        y = random.nextInt(0,450);
+        x = X;
+        y = Y;
         w = W;
         h = H;
         s = random.nextInt(10,25);
