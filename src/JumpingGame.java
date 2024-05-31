@@ -32,6 +32,8 @@ public class JumpingGame extends GameEngine{
     }
 
     public void init() {
+        score = 0;
+        queue = new LinkedList<>();
         startMenu = loadImage("Images/StartMenu.png");
         helpMenu = loadImage("Images/Help.png");
 
@@ -145,6 +147,14 @@ public class JumpingGame extends GameEngine{
         drawText(85, 150, "GAME OVER!", "Arial", 50);
         String scoreString = "Final score: " + score;
         drawText(150, 200, scoreString, "Arial", 30);
+        drawText(85, 310, "Play again", "Arial", 30);
+        drawText(85, 390, "Return to Main Menu", "Arial", 30);
+        changeColor(red);
+        if (option1){
+            drawSolidRectangle(30, 290, 20, 20);
+        } else if (option2) {
+            drawSolidRectangle(30, 375, 20, 20);
+        }
     }
     public void paintComponent() {
         mFrame.setTitle("Jumping Game");
@@ -203,6 +213,7 @@ public class JumpingGame extends GameEngine{
                 option2 = false;
             } else if (e.getKeyCode() == KeyEvent.VK_ENTER) {
                 if (option1) {
+                    init();
                     gameState = GameState.Game;
                     startAudioLoop(bgMusic);
                 } else if (option2) {
@@ -211,6 +222,24 @@ public class JumpingGame extends GameEngine{
             }
         } else if (gameState == GameState.Help && e.getKeyCode() == KeyEvent.VK_ENTER) {
             gameState = GameState.Menu;
+        }
+
+        if(gameState == GameState.GameOver){
+            if (e.getKeyCode() == KeyEvent.VK_DOWN) {
+                option1 = false;
+                option2 = true;
+            } else if (e.getKeyCode() == KeyEvent.VK_UP) {
+                option1 = true;
+                option2 = false;
+            } else if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+                if (option1) {
+                    init();
+                    gameState = GameState.Game;
+                    startAudioLoop(bgMusic);
+                } else if (option2) {
+                    gameState = GameState.Menu;
+                }
+            }
         }
     }
 
