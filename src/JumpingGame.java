@@ -9,6 +9,8 @@ public class JumpingGame extends GameEngine{
     ScreenScroller screenScroller = new ScreenScroller();
     LinkedList<Thing> queue = new LinkedList<>();
     Image sheet;
+    Image startMenu;
+    Image helpMenu;
     int totalFrames;
     int rows = 3;
     int cols = 6;
@@ -21,14 +23,18 @@ public class JumpingGame extends GameEngine{
     AudioClip bgMusic;
     AudioClip loseSound;
     int score = 0;
-    enum GameState {Menu, Game, GameOver};
-    GameState gameState = GameState.Game; //when going in and adding a start menu you'll need to change this
+    public boolean option1 = true, option2 = false;
+    enum GameState {Menu, Help, Game, GameOver};
+    GameState gameState = GameState.Menu; //when going in and adding a start menu you'll need to change this
 
     public static void main(String[] args){
         createGame(new JumpingGame());
     }
 
     public void init() {
+        startMenu = loadImage("Images/StartMenu.png");
+        helpMenu = loadImage("Images/Help.png");
+
         player = new Player(0, yFloor, 100, 100);
         sheet = loadImage("Images/playerSprite.png");
         totalFrames = rows * cols;
@@ -44,7 +50,6 @@ public class JumpingGame extends GameEngine{
         loseSound = loadAudio("Audio/lose.wav");
         bgMusic = loadAudio("Audio/bgm.wav");
         t = 0;
-        startAudioLoop(bgMusic);
     }
     public int getFrame(double d)
     {
@@ -53,6 +58,14 @@ public class JumpingGame extends GameEngine{
     }
 
     public void update(double dt) {
+        if (gameState == GameState.Menu) {
+            return;
+        }
+
+        if (gameState == GameState.Help) {
+            return;
+        }
+
         if(gameState == GameState.Game){
             ScreenScroller.Scroll(queue);
             ScreenScroller.ShuffleList(queue);
@@ -84,7 +97,7 @@ public class JumpingGame extends GameEngine{
                 if ((object.getBounds().intersects(new Rectangle((int) player.hitboxX, (int) player.hitboxY, player.hitboxWidth, player.hitboxHeight)))&&object.getType()=='O') {
                     // Game over
                     playAudio(loseSound);
-                    System.out.println("Game Over! Score: " + score);
+//                    System.out.println("Game Over! Score: " + score);
                     stopAudioLoop(bgMusic);
                     gameState = GameState.GameOver;
                     break;
@@ -93,7 +106,8 @@ public class JumpingGame extends GameEngine{
                     playAudio(coinSound);
                     queue.remove(i);
                     score++;
-                    System.out.println("Score: " + score);}
+//                    System.out.println("Score: " + score);
+                    }
             }
         }
 
@@ -113,6 +127,19 @@ public class JumpingGame extends GameEngine{
         }
     }
 
+    public void startMenuScreen() {
+        drawImage(startMenu, 0, 0, width(), height());
+        changeColor(red);
+        if (option1){
+            drawSolidRectangle(30, 310, 20, 20);
+        } else if (option2) {
+            drawSolidRectangle(30, 350, 20, 20);
+        }
+    }
+
+    public void helpMenuScreen() {
+        drawImage(helpMenu, 0, 0, width(), height());
+    }
     public void gameOverScreen(){
         changeColor(white);
         drawText(85, 150, "GAME OVER!", "Arial", 50);
@@ -125,7 +152,11 @@ public class JumpingGame extends GameEngine{
         changeBackgroundColor(black);
         clearBackground(width(), height());
 
-        if(gameState == GameState.Game) {
+        if (gameState == GameState.Menu) {
+            startMenuScreen();
+        } else if (gameState == GameState.Help) {
+            helpMenuScreen();
+        } else if(gameState == GameState.Game) {
             int f = getFrame(1);
             DrawWith1DArray(f);
 
@@ -156,11 +187,33 @@ public class JumpingGame extends GameEngine{
 
     }
 
-    public void keyPressed(KeyEvent e){
-        if(e.getKeyCode() == KeyEvent.VK_SPACE){
-            player.jump(true);
+    public void keyPressed(KeyEvent e) {
+        if (e.getKeyCode() == KeyEvent.VK_SPACE) {
+            if (gameState == GameState.Game) {
+                player.jump(true);
+            }
+        }
+
+        if (gameState == GameState.Menu) {
+            if (e.getKeyCode() == KeyEvent.VK_DOWN) {
+                option1 = false;
+                option2 = true;
+            } else if (e.getKeyCode() == KeyEvent.VK_UP) {
+                option1 = true;
+                option2 = false;
+            } else if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+                if (option1) {
+                    gameState = GameState.Game;
+                    startAudioLoop(bgMusic);
+                } else if (option2) {
+                    gameState = GameState.Help;
+                }
+            }
+        } else if (gameState == GameState.Help && e.getKeyCode() == KeyEvent.VK_ENTER) {
+            gameState = GameState.Menu;
         }
     }
+
     public void keyReleased(KeyEvent e){
         if(e.getKeyCode() == KeyEvent.VK_SPACE){
             player.jump(false);
