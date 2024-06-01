@@ -182,7 +182,7 @@ public class JumpingGame extends GameEngine{
             }
             changeColor(Color.white);
             String scoreString = "Score: " + score;
-            drawText(25, 40, scoreString, "Arial", 25);
+            drawText(380, 40, scoreString, "Arial", 25);
 
         } else if(gameState == GameState.GameOver){
             gameOverScreen();
