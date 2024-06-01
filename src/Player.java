@@ -7,7 +7,7 @@ public class Player {
     double hitboxY; //y position for collisions
     int hitboxHeight = 50; //height for collisions
     int hitboxWidth = 17; //width for collisions
-    double yVelocity = 0;
+    double yVelocity = 0; //y velocity for jumping
 
     enum States {Running, JumpUp, JumpFall}; // controls whether the user is jumping or not, and where in the jump they are
     // (jetpack joyride style motion)
@@ -19,15 +19,15 @@ public class Player {
         width = w;
         height = h;
         calculateHitbox();
-        state = States.Running;
+        state = States.Running; //user always starts by running
     }
 
-    public void calculateHitbox(){
+    public void calculateHitbox(){ //by using a hitbox collisions occur in a more "fair" way for the player
         hitboxX = xPos + 38;
         hitboxY = yPos + 35;
     }
 
-    public void jump(boolean pressed){
+    public void jump(boolean pressed){ //changes the jumping state based on player input
         if(state == States.Running || state == States.JumpFall && pressed){
             state = States.JumpUp;
         } else if(state == States.JumpUp && !pressed){
@@ -35,10 +35,10 @@ public class Player {
         }
     }
 
-    public void updatePosition(double acceleration){
+    public void updatePosition(double acceleration, double dt){ //updates the player's position with respect to acceleration
         if(state == States.JumpUp){
             if(yVelocity <= 10){
-                yVelocity = yVelocity + 2.01 - acceleration;
+                yVelocity = yVelocity + (40 - acceleration) * dt;
             }
             yPos -= yVelocity;
             calculateHitbox();

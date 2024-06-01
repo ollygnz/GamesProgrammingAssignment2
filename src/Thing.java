@@ -1,3 +1,5 @@
+//class that stores the information for coins and obstacles
+
 import java.util.Random;
 import java.awt.Rectangle;
 public class Thing {

@@ -1,37 +1,43 @@
+//Group members:
+// Jaxon Goss (22001841)
+// Aidan Callaghan (23006140)
+// Sze Leung (22002258) (Anna)
+// Olivia Goodman (22015684)
+
 import java.awt.*;
 import java.awt.event.KeyEvent;
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Random;
 
 public class JumpingGame extends GameEngine{
-    Player player;
+    Player player; //the player object that controls everything to do with player position, state, movement
     ScreenScroller screenScroller = new ScreenScroller();
-    LinkedList<Thing> queue = new LinkedList<>();
-    Image sheet;
-    Image startMenu;
-    Image helpMenu;
-    int totalFrames;
+    LinkedList<Thing> queue = new LinkedList<>(); //queue that controls the obstacles and coins movement
+    Image sheet; //sprite sheet
+    Image startMenu; //background image for menu
+    Image helpMenu; //background image for help screen
+    int totalFrames; //variables used for sprite animation
     int rows = 3;
     int cols = 6;
     Image[] frames;
     double t;
     double acceleration = -2; //gravity
     int yFloor = 400; //the "floor" that the sprite runs on
-    Random rand = new Random();
-    AudioClip coinSound;
+    Random rand = new Random(); //used for any time we need a random number
+    AudioClip coinSound; //audio files
     AudioClip bgMusic;
     AudioClip loseSound;
-    int score = 0;
-    public boolean option1 = true, option2 = false;
-    enum GameState {Menu, Help, Game, GameOver};
-    GameState gameState = GameState.Menu; //when going in and adding a start menu you'll need to change this
+    int score = 0; //player score
+    public boolean option1 = true, option2 = false; // booleans for menu navigation
+    enum GameState {Menu, Help, Game, GameOver}; //game state that controls what screen the player sees
+    GameState gameState = GameState.Menu;
 
     public static void main(String[] args){
         createGame(new JumpingGame());
     }
 
     public void init() {
+        //set up everything required for a new game
         score = 0;
         queue = new LinkedList<>();
         startMenu = loadImage("Images/StartMenu.png");
@@ -53,7 +59,7 @@ public class JumpingGame extends GameEngine{
         bgMusic = loadAudio("Audio/bgm.wav");
         t = 0;
     }
-    public int getFrame(double d)
+    public int getFrame(double d) //for sprite animation
     {
         int frame = (int)Math.floor(((t % d) / d) * totalFrames);
         return frame;
@@ -68,11 +74,11 @@ public class JumpingGame extends GameEngine{
             return;
         }
 
-        if(gameState == GameState.Game){
+        if(gameState == GameState.Game){ //only try to update if actually playing game
             ScreenScroller.Scroll(queue);
             ScreenScroller.ShuffleList(queue);
             t+=dt;
-            player.updatePosition(acceleration);
+            player.updatePosition(acceleration, dt);
             checkRoof();
             // Spawn obstacles
             if (rand.nextInt(200) < 3) { // adjust the frequency as needed
@@ -99,7 +105,6 @@ public class JumpingGame extends GameEngine{
                 if ((object.getBounds().intersects(new Rectangle((int) player.hitboxX, (int) player.hitboxY, player.hitboxWidth, player.hitboxHeight)))&&object.getType()=='O') {
                     // Game over
                     playAudio(loseSound);
-//                    System.out.println("Game Over! Score: " + score);
                     stopAudioLoop(bgMusic);
                     gameState = GameState.GameOver;
                     break;
@@ -108,13 +113,13 @@ public class JumpingGame extends GameEngine{
                     playAudio(coinSound);
                     queue.remove(i);
                     score++;
-//                    System.out.println("Score: " + score);
                     }
             }
         }
 
     }
 
+    //checks collisions with the "roof" (top of screen) and "floor" (bottom of screen)
     public void checkRoof(){
         if(player.yPos <= 0){
             player.yVelocity = 0;
@@ -129,6 +134,7 @@ public class JumpingGame extends GameEngine{
         }
     }
 
+    // displays the start menu and where the player has selected
     public void startMenuScreen() {
         drawImage(startMenu, 0, 0, width(), height());
         changeColor(red);
@@ -139,9 +145,13 @@ public class JumpingGame extends GameEngine{
         }
     }
 
+    // displays the help menu
     public void helpMenuScreen() {
         drawImage(helpMenu, 0, 0, width(), height());
     }
+
+    // displays the game over screen, the final score, and where the player has selected
+
     public void gameOverScreen(){
         changeColor(white);
         drawText(85, 150, "GAME OVER!", "Arial", 50);
@@ -166,7 +176,7 @@ public class JumpingGame extends GameEngine{
             startMenuScreen();
         } else if (gameState == GameState.Help) {
             helpMenuScreen();
-        } else if(gameState == GameState.Game) {
+        } else if(gameState == GameState.Game) { //only try to animate the character if playing game
             int f = getFrame(1);
             DrawWith1DArray(f);
 
@@ -181,7 +191,7 @@ public class JumpingGame extends GameEngine{
                 }
             }
             changeColor(Color.white);
-            String scoreString = "Score: " + score;
+            String scoreString = "Score: " + score; //displaying score as player is playing
             drawText(380, 40, scoreString, "Arial", 25);
 
         } else if(gameState == GameState.GameOver){
@@ -189,7 +199,7 @@ public class JumpingGame extends GameEngine{
         }
     }
 
-    private void DrawWith1DArray(int f)
+    private void DrawWith1DArray(int f) //for sprite animation
     {
 
         // Draw Selected Frame
@@ -197,7 +207,7 @@ public class JumpingGame extends GameEngine{
 
     }
 
-    public void keyPressed(KeyEvent e) {
+    public void keyPressed(KeyEvent e) { //key events - jumping during game and menu traversal outside of game
         if (e.getKeyCode() == KeyEvent.VK_SPACE) {
             if (gameState == GameState.Game) {
                 player.jump(true);
@@ -243,7 +253,7 @@ public class JumpingGame extends GameEngine{
         }
     }
 
-    public void keyReleased(KeyEvent e){
+    public void keyReleased(KeyEvent e){ //key released event so the player can "fall" after jumping
         if(e.getKeyCode() == KeyEvent.VK_SPACE){
             player.jump(false);
         }

@@ -1,6 +1,6 @@
+// Creates the illusion of the constantly scrolling screen for infinite movement by scrolling through the list of things
 
 import java.util.LinkedList;
-import java.util.Queue;
 public class ScreenScroller{
 
     public static void Scroll(LinkedList<Thing> LL){
